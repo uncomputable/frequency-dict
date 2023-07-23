@@ -171,11 +171,17 @@ class TermOccurrences:
             total_count = max(self.counts[term], count)
             self.counts[term] = total_count
 
-    def to_rank_list(self) -> "RankList":
+    def to_rank_list(self, max_entries: Optional[int] = None) -> "RankList":
+        """
+        Convert the counter to a list of term frequency ranks.
+        """
         ranked_terms = sorted(self.counts.items(), key=lambda x: -x[1])
         term_meta_bank = list()
 
         for rank, (term, occurrences) in enumerate(ranked_terms):
+            if len(term_meta_bank) >= max_entries:
+                break
+
             term_meta = TermMetadata(term.text, term.reading, rank)
             term_meta_bank.append(term_meta)
 
@@ -184,7 +190,15 @@ class TermOccurrences:
 
 @dataclass
 class RankList:
+    """
+    List of term frequency ranks.
+
+    The most frequent term has rank one, the second most frequent term has rank two, and so on.
+    """
     term_meta_bank: List[TermMetadata]
+    """
+    List of terms in order of rank.
+    """
 
     @classmethod
     def from_rank_list(cls, file_path: str, separator: str, text_index: int, reading_index: int,
@@ -386,7 +400,7 @@ def chj_modern(args: argparse.Namespace):
         args.file_suw[1], separator="\t", text_index=1, reading_index=0, frequency_index=16, skip_lines=1, encoding="utf-16")
     occurrences1.unify_distinct(occurrences2)
 
-    rank_list = occurrences1.to_rank_list()
+    rank_list = occurrences1.to_rank_list(max_entries=80000)
     dictionary = MetaDictionary(
         rank_list, "明治〜大正", "src v2022-03 yomi v{}".format(date.today().isoformat()),
         "NINJAL, uncomputable", "https://github.com/uncomputable/frequency-dict",
@@ -422,7 +436,7 @@ def chj_premodern(args: argparse.Namespace):
             args.file_luw, separator="\t", text_index=1, reading_index=0, frequency_index=13, skip_lines=1, encoding="utf-16")
         occurrences1.unify_conservative_overlap(occurrences2)
 
-    rank_list = occurrences1.to_rank_list()
+    rank_list = occurrences1.to_rank_list(max_entries=80000)
     suw_luw_version = "SUW+LUW" if args.file_luw else "SUW"
     dictionary = MetaDictionary(
         rank_list, "奈良〜江戸", "src v2022-03 yomi v{} {}".format(date.today().isoformat(), suw_luw_version),
@@ -463,7 +477,7 @@ def bccwj(args: argparse.Namespace):
             args.file_luw, separator="\t", text_index=2, reading_index=1, frequency_index=6, skip_lines=1)
         occurrences1.unify_conservative_overlap(occurrences2)
 
-    rank_list = occurrences1.to_rank_list()
+    rank_list = occurrences1.to_rank_list(max_entries=80000)
     suw_luw_version = "SUW+LUW" if args.file_luw else "SUW"
     dictionary = MetaDictionary(
         rank_list, "書き言葉", "src v1.1 (2017-12) yomi v{} {}".format(date.today().isoformat(), suw_luw_version),
