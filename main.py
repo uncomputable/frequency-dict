@@ -67,6 +67,120 @@ class Term:
 
 
 @dataclass
+class TermOccurrences:
+    """
+    Counter of how many times a term has occurred.
+    """
+    counts: defaultdict[Term, int]
+    """
+    Mapping of terms to their number of occurrences.
+    """
+
+    @classmethod
+    def from_frequency_list(cls, file_path: str, separator: str, text_index: int, reading_index: int,
+                            frequency_index: int, skip_lines: Optional[int] = None, encoding: str = "utf-8") -> "TermOccurrences":
+        """
+        Count the number of term occurrences in a frequency list.
+
+        The input file consists of lines that are ordered by term (text + reading) in lexicographical order.
+        The frequency of the term is given; the rank must be calculated.
+
+        Example columns:
+
+        語彙素読み	語彙素	語種	語彙素ID	品詞	語形	書字形	時代	サブコーパス名	作品名	部	成立年	コアフラグ	本文種別	文体	主本文フラグ	freq
+
+        Example line:
+
+        スル	為る	和	19537	動詞-非自立可能	ス	す	7大正	明治・大正-小説	あらくれ		1915	1		口語	1	1
+        """
+        count = defaultdict(int)
+
+        with open(file_path, "r", encoding=encoding) as f:
+            for (line_index, line) in enumerate(f):
+                if line_index < skip_lines:
+                    continue
+
+                split_line = line.split(separator)
+                text = split_line[text_index]
+
+                if not KANJI.search(text):
+                    if not KANA.search(text):
+                        # Weird entry like Arabic numbers, Latin characters or punctuation
+                        continue
+
+                    # Hiragana / Katakana word
+                    reading = text
+                else:
+                    reading = jaconv.kata2hira(split_line[reading_index])
+
+                occurrences = int(split_line[frequency_index])
+                term = Term(text, reading)
+                count[term] += occurrences
+
+        return TermOccurrences(count)
+
+    def overlap(self, other: "TermOccurrences") -> float:
+        """
+        Compute how many terms occur in both counters compared to the total number of terms.
+
+        We disregard the number of occurrences of each term.
+        """
+        self_terms = set(self.counts.keys())
+        other_terms = other.counts.keys()
+        shared_terms = self_terms.intersection(other_terms)
+        total_terms = self_terms.union(other_terms)
+
+        return len(shared_terms) / len(total_terms)
+
+    def overlap_different_count(self, other: "TermOccurrences"):
+        for term, count in other.counts.items():
+            if term in self.counts:
+                difference = abs(self.counts[term] - count)
+                if difference > 0:
+                    print(term, difference)
+
+    def unify_distinct(self, other: "TermOccurrences"):
+        """
+        Add the counts from another counter to the counts of self.
+
+        **Assumes that both counters count distinct term occurrences!**
+
+        If this premise is violated, the same occurrence might be counted twice!
+        """
+        for term, count in other.counts.items():
+            self.counts[term] += count
+
+    def unify_conservative_overlap(self, other: "TermOccurrences"):
+        """
+        Add the counts from another counter to the counts of self.
+
+        **Assumes that any numeric overlap in counts is an overlap in actual term occurrences!**
+
+        If self counts some term N times and other counts the term M times,
+        then min(N, M) is the numeric overlap.
+        We assume that these min(N, M) occurrences are the same for both counters *(in reality they might not be)*.
+
+        The conservative approach is to take max(N, M) as the total count.
+        This makes it impossible that any term occurrence is counted twice.
+
+        If the premise is violated, some occurrences might not be counted at all.
+        """
+        for term, count in other.counts.items():
+            total_count = max(self.counts[term], count)
+            self.counts[term] = total_count
+
+    def to_rank_list(self) -> "FrequencyList":
+        ranked_terms = sorted(self.counts.items(), key=lambda x: -x[1])
+        term_meta_bank = list()
+
+        for rank, (term, occurrences) in enumerate(ranked_terms):
+            term_meta = TermMetadata(term.text, term.reading, rank)
+            term_meta_bank.append(term_meta)
+
+        return FrequencyList(term_meta_bank)
+
+
+@dataclass
 class FrequencyList:
     term_meta_bank: List[TermMetadata]
 
@@ -112,61 +226,6 @@ class FrequencyList:
                 term_meta_bank.append(term_meta)
 
         return FrequencyList(term_meta_bank)
-
-    @classmethod
-    def from_frequency_lists(cls, file_paths: List[str], separator: str, text_index: int, reading_index: int,
-                             frequency_index: int, skip_lines: Optional[int] = None, encoding: str = "utf-8") -> "FrequencyList":
-        term_occurrences = defaultdict(int)
-
-        for file_path in file_paths:
-            with open(file_path, "r", encoding=encoding) as f:
-                for (line_index, line) in enumerate(f):
-                    if line_index < skip_lines:
-                        continue
-
-                    split_line = line.split(separator)
-                    text = split_line[text_index]
-
-                    if not KANJI.search(text):
-                        if not KANA.search(text):
-                            # Weird entry like Arabic numbers, Latin characters or punctuation
-                            continue
-
-                        # Hiragana / Katakana word
-                        reading = text
-                    else:
-                        reading = jaconv.kata2hira(split_line[reading_index])
-
-                    occurrences = int(split_line[frequency_index])
-                    term = Term(text, reading)
-                    term_occurrences[term] += occurrences
-
-        ranked_terms = sorted(term_occurrences.items(), key=lambda x: -x[1])
-        term_meta_bank = list()
-
-        for rank, (term, occurrences) in enumerate(ranked_terms):
-            term_meta = TermMetadata(term.text, term.reading, rank)
-            term_meta_bank.append(term_meta)
-
-        return FrequencyList(term_meta_bank)
-
-    @classmethod
-    def from_frequency_list(cls, file_path: str, separator: str, text_index: int, reading_index: int,
-                            frequency_index: int, skip_lines: Optional[int] = None, encoding: str = "utf-8") -> "FrequencyList":
-        """
-        The input consists of lines that are ordered by term (text + reading) in lexicographical order.
-        The frequency of the term is given; the rank must be calculated.
-
-        Example columns:
-
-        語彙素読み	語彙素	語種	語彙素ID	品詞	語形	書字形	時代	サブコーパス名	作品名	部	成立年	コアフラグ	本文種別	文体	主本文フラグ	freq
-
-        Example line:
-
-        スル	為る	和	19537	動詞-非自立可能	ス	す	7大正	明治・大正-小説	あらくれ		1915	1		口語	1	1
-        """
-        return cls.from_frequency_lists(
-            [file_path], separator, text_index, reading_index, frequency_index, skip_lines, encoding)
 
     @classmethod
     def from_zip(cls, zip_file: ZipFile, max_entries: Optional[int] = None) -> "FrequencyList":
@@ -308,11 +367,15 @@ def chj_modern():
     https://repository.ninjal.ac.jp/
     Go to 言語資源 → 日本語歴史コーパス → 『日本語歴史コーパス』統合語彙表（バージョン2022.03）
     """
-    frequency_list = FrequencyList.from_frequency_lists(
-        [
-            "CHJ_integratedFequencyList_202203/CHJ-LEX_SUW_2022.3_modern_nonmag.csv",
-            "CHJ_integratedFequencyList_202203/CHJ-LEX_SUW_2022.3_modern_mag.csv"
-        ], separator="\t", text_index=1, reading_index=0, frequency_index=16, skip_lines=1, encoding="utf-16")
+    occurrences1 = TermOccurrences.from_frequency_list(
+        "CHJ_integratedFequencyList_202203/CHJ-LEX_SUW_2022.3_modern_nonmag.csv",
+        separator="\t", text_index=1, reading_index=0, frequency_index=16, skip_lines=1, encoding="utf-16")
+    occurrences2 = TermOccurrences.from_frequency_list(
+        "CHJ_integratedFequencyList_202203/CHJ-LEX_SUW_2022.3_modern_mag.csv",
+        separator="\t", text_index=1, reading_index=0, frequency_index=16, skip_lines=1, encoding="utf-16")
+    occurrences1.unify_distinct(occurrences2)
+
+    frequency_list = occurrences1.to_rank_list()
     dictionary = FrequencyDictionary(
         frequency_list, "明治〜大正", "src v2022_03 yomi v0",
         "NINJAL, uncomputable", "https://github.com/uncomputable/frequency-dict",
@@ -335,9 +398,15 @@ def chj_premodern():
     https://repository.ninjal.ac.jp/
     Go to 言語資源 → 日本語歴史コーパス → 『日本語歴史コーパス』統合語彙表（バージョン2022.03）
     """
-    frequency_list = FrequencyList.from_frequency_list(
+    occurrences1 = TermOccurrences.from_frequency_list(
         "CHJ_integratedFequencyList_202203/CHJ-LEX_SUW_2022.3_premodern.csv",
         separator="\t", text_index=1, reading_index=0, frequency_index=16, skip_lines=1, encoding="utf-16")
+    occurrences2 = TermOccurrences.from_frequency_list(
+        "CHJ_integratedFequencyList_202203/CHJ-LEX_LUW_2022.3.csv",
+        separator="\t", text_index=1, reading_index=0, frequency_index=13, skip_lines=1, encoding="utf-16")
+    occurrences1.unify_conservative_overlap(occurrences2)
+
+    frequency_list = occurrences1.to_rank_list()
     dictionary = FrequencyDictionary(
         frequency_list, "奈良〜江戸", "src v2022_03 yomi v0",
         "NINJAL, uncomputable", "https://github.com/uncomputable/frequency-dict",
