@@ -443,17 +443,25 @@ def bccwj(args: argparse.Namespace):
     """
     Balanced Corpus of Contemporary Written Japanese
 
-    File:
+    Files:
 
     BCCWJ_frequencylist_suw_ver1_1.tsv
+    BCCWJ_frequencylist_luw2_ver1_1.tsv
 
     File source:
 
     https://repository.ninjal.ac.jp/
     Go to 言語資源 → 現代日本語書き言葉均衡コーパス → 『現代日本語書き言葉均衡コーパス』短単位語彙表(Version 1.1)
     """
-    rank_list = RankList.from_rank_list(
-        args.file_suw, separator="\t", text_index=2, reading_index=1, skip_lines=1, max_entries=80000)
+    occurrences1 = TermOccurrences.from_frequency_list(
+        args.file_suw, separator="\t", text_index=1, reading_index=0, frequency_index=6, skip_lines=0)
+
+    if args.file_luw:
+        occurrences2 = TermOccurrences.from_frequency_list(
+            args.file_luw, separator="\t", text_index=2, reading_index=1, frequency_index=6, skip_lines=1)
+        occurrences1.unify_conservative_overlap(occurrences2)
+
+    rank_list = occurrences1.to_rank_list()
     dictionary = MetaDictionary(
         rank_list, "書き言葉", "src v1.1 (2017-12) yomi v0",
         "NINJAL, uncomputable", "https://github.com/uncomputable/frequency-dict",
@@ -516,6 +524,7 @@ if __name__ == "__main__":
 
     parser_a = subparsers.add_parser("bccwj", help="Balanced Corpus of Contemporary Written Japanese")
     parser_a.add_argument("file_suw", type=str, help="Path to BCCWJ_frequencylist_suw_ver1_1.tsv")
+    parser_a.add_argument("file_luw", nargs="?", type=str, help="Path to BCCWJ_frequencylist_luw2_ver1_1.tsv")
     parser_a.set_defaults(func=bccwj)
 
     parser_b = subparsers.add_parser("csj", help="Corpus of Spontaneous Japanese")
