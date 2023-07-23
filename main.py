@@ -362,7 +362,7 @@ def nwjc(args: argparse.Namespace):
         
         https://masayu-a.github.io/NWJC/""",
         "CC BY 4.0 https://creativecommons.org/licenses/by/4.0/deed.ja")
-    dictionary.to_zip("NWCJ.zip")
+    dictionary.to_zip("NWJC.zip")
 
 
 def chj_modern(args: argparse.Namespace):
