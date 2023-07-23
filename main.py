@@ -259,7 +259,7 @@ class RankList:
         return bank_objects
 
 
-class FrequencyDictionary:
+class MetaDictionary:
     rank_list: RankList
     title: str
     revision: str
@@ -313,10 +313,10 @@ class FrequencyDictionary:
             zip_file.writestr(bank_file_name, bank_json_str)
 
     @classmethod
-    def from_zip(cls, file_path: str, max_entries: Optional[int] = None) -> "FrequencyDictionary":
+    def from_zip(cls, file_path: str, max_entries: Optional[int] = None) -> "MetaDictionary":
         with ZipFile(file_path, mode="r") as zip_file:
             rank_list = RankList.from_zip(zip_file, max_entries)
-            dictionary = FrequencyDictionary(rank_list, "", "")
+            dictionary = MetaDictionary(rank_list, "", "")
             dictionary._load_index(zip_file)
 
             return dictionary
@@ -348,7 +348,7 @@ def nwjc():
     """
     rank_list = RankList.from_rank_list("NWJC_frequencylist_suw_ver2022_02/NWJC_frequencylist_suw_ver2022_02.tsv",
                                         separator="\t", text_index=2, reading_index=1, skip_lines=1, max_entries=80000)
-    dictionary = FrequencyDictionary(
+    dictionary = MetaDictionary(
         rank_list, "ウェブ", "src v2022_02 yomi v0",
         "NINJAL, uncomputable", "https://github.com/uncomputable/frequency-dict",
         """『国語研日本語ウェブコーパス（NWJC）』はウェブを母集団として100億語規模を目標として構築した日本語コーパスです。 
@@ -376,7 +376,7 @@ def chj_modern():
     occurrences1.unify_distinct(occurrences2)
 
     rank_list = occurrences1.to_rank_list()
-    dictionary = FrequencyDictionary(
+    dictionary = MetaDictionary(
         rank_list, "明治〜大正", "src v2022_03 yomi v0",
         "NINJAL, uncomputable", "https://github.com/uncomputable/frequency-dict",
         """ 『日本語歴史コーパス（CHJ）』は、デジタル時代における日本語史研究の基礎資料として開発を進めているコーパスです。
@@ -407,7 +407,7 @@ def chj_premodern():
     occurrences1.unify_conservative_overlap(occurrences2)
 
     rank_list = occurrences1.to_rank_list()
-    dictionary = FrequencyDictionary(
+    dictionary = MetaDictionary(
         rank_list, "奈良〜江戸", "src v2022_03 yomi v0",
         "NINJAL, uncomputable", "https://github.com/uncomputable/frequency-dict",
         """『日本語歴史コーパス（CHJ）』は、デジタル時代における日本語史研究の基礎資料として開発を進めているコーパスです。
@@ -436,7 +436,7 @@ def bccwj():
     rank_list = RankList.from_rank_list(
         "BCCWJ_frequencylist_suw_ver1_1.tsv",
         separator="\t", text_index=2, reading_index=1, skip_lines=1, max_entries=80000)
-    dictionary = FrequencyDictionary(
+    dictionary = MetaDictionary(
         rank_list, "書き言葉", "src v1.1 (2017-12) yomi v0",
         "NINJAL, uncomputable", "https://github.com/uncomputable/frequency-dict",
         """『現代日本語書き言葉均衡コーパス（BCCWJ）』は、現代日本語の書き言葉の全体像を把握するために構築したコーパスであり、現在、日本語について入手可能な唯一の均衡コーパスです。
@@ -459,7 +459,7 @@ def csj():
     rank_list = RankList.from_rank_list(
         "CSJ_frequencylist_suw_ver201803.tsv",
         separator="\t", text_index=2, reading_index=1, skip_lines=1, max_entries=80000)
-    dictionary = FrequencyDictionary(
+    dictionary = MetaDictionary(
         rank_list, "話し言葉", "src v2018-03 yomi v0",
         "NINJAL, uncomputable", "https://github.com/uncomputable/frequency-dict",
         """『日本語話し言葉コーパス（CSJ）』は、日本語の自発音声を大量にあつめて多くの研究用情報を付加した話し言葉研究用のデータベースであり、国立国語研究所・ 情報通信研究機構（旧通信総合研究所）・ 東京工業大学 が共同開発した、質・量ともに世界最高水準の話し言葉データベースです。
@@ -478,7 +478,7 @@ def convert_jpdb():
 
     https://github.com/MarvNC/jpdb-freq-list
     """
-    dictionary = FrequencyDictionary.from_zip("Freq.JPDB_2022-05-10T03_27_02.930Z.zip", max_entries=80000)
+    dictionary = MetaDictionary.from_zip("Freq.JPDB_2022-05-10T03_27_02.930Z.zip", max_entries=80000)
     dictionary.to_zip("JPDB.zip")
 
 
