@@ -169,7 +169,7 @@ class TermOccurrences:
             total_count = max(self.counts[term], count)
             self.counts[term] = total_count
 
-    def to_rank_list(self) -> "FrequencyList":
+    def to_rank_list(self) -> "RankList":
         ranked_terms = sorted(self.counts.items(), key=lambda x: -x[1])
         term_meta_bank = list()
 
@@ -177,16 +177,16 @@ class TermOccurrences:
             term_meta = TermMetadata(term.text, term.reading, rank)
             term_meta_bank.append(term_meta)
 
-        return FrequencyList(term_meta_bank)
+        return RankList(term_meta_bank)
 
 
 @dataclass
-class FrequencyList:
+class RankList:
     term_meta_bank: List[TermMetadata]
 
     @classmethod
     def from_rank_list(cls, file_path: str, separator: str, text_index: int, reading_index: int,
-                       skip_lines: Optional[int] = None, max_entries: Optional[int] = None, encoding: str = "utf-8") -> "FrequencyList":
+                       skip_lines: Optional[int] = None, max_entries: Optional[int] = None, encoding: str = "utf-8") -> "RankList":
         """
         The input file consists of lines that are ordered by rank (n-th most common term) in increasing order.
 
@@ -225,10 +225,10 @@ class FrequencyList:
                 term_meta = TermMetadata(text, reading, line_index + 1)
                 term_meta_bank.append(term_meta)
 
-        return FrequencyList(term_meta_bank)
+        return RankList(term_meta_bank)
 
     @classmethod
-    def from_zip(cls, zip_file: ZipFile, max_entries: Optional[int] = None) -> "FrequencyList":
+    def from_zip(cls, zip_file: ZipFile, max_entries: Optional[int] = None) -> "RankList":
         term_meta_bank = list()
         bank_file_names = [f for f in zip_file.namelist() if "term_meta_bank" in f]
 
@@ -238,12 +238,12 @@ class FrequencyList:
 
                 for term_meta_obj in bank_obj:
                     if len(term_meta_bank) >= max_entries:
-                        return FrequencyList(term_meta_bank)
+                        return RankList(term_meta_bank)
 
                     term_meta_data = TermMetadata.from_json(term_meta_obj)
                     term_meta_bank.append(term_meta_data)
 
-        return FrequencyList(term_meta_bank)
+        return RankList(term_meta_bank)
 
     def to_chunked_json(self) -> List[List]:
         bank_objects = list()
@@ -260,7 +260,7 @@ class FrequencyList:
 
 
 class FrequencyDictionary:
-    frequency_list: FrequencyList
+    rank_list: RankList
     title: str
     revision: str
     author: Optional[str]
@@ -268,9 +268,9 @@ class FrequencyDictionary:
     description: Optional[str]
     attribution: Optional[str]
 
-    def __init__(self, frequency_list: FrequencyList, title: str, revision: str, author: Optional[str] = None,
+    def __init__(self, rank_list: RankList, title: str, revision: str, author: Optional[str] = None,
                  url: Optional[str] = None, description: Optional[str] = None, attribution: Optional[str] = None):
-        self.frequency_list = frequency_list
+        self.rank_list = rank_list
         self.title = title
         self.revision = revision
         self.author = author
@@ -305,7 +305,7 @@ class FrequencyDictionary:
         zip_file.writestr("index.json", index_json_str)
 
     def _term_meta_banks_to_zip(self, zip_file: ZipFile):
-        bank_objects = self.frequency_list.to_chunked_json()
+        bank_objects = self.rank_list.to_chunked_json()
 
         for (bank_index, bank_obj) in enumerate(bank_objects):
             bank_file_name = "term_meta_bank_{}.json".format(bank_index + 1)
@@ -315,8 +315,8 @@ class FrequencyDictionary:
     @classmethod
     def from_zip(cls, file_path: str, max_entries: Optional[int] = None) -> "FrequencyDictionary":
         with ZipFile(file_path, mode="r") as zip_file:
-            frequency_list = FrequencyList.from_zip(zip_file, max_entries)
-            dictionary = FrequencyDictionary(frequency_list, "", "")
+            rank_list = RankList.from_zip(zip_file, max_entries)
+            dictionary = FrequencyDictionary(rank_list, "", "")
             dictionary._load_index(zip_file)
 
             return dictionary
@@ -346,10 +346,10 @@ def nwjc():
     https://repository.ninjal.ac.jp/
     Go to 言語資源 → 国語研日本語ウェブコーパス → 『国語研日本語ウェブコーパス』中納言搭載データ語彙表
     """
-    frequency_list = FrequencyList.from_rank_list("NWJC_frequencylist_suw_ver2022_02/NWJC_frequencylist_suw_ver2022_02.tsv",
-                                  separator="\t", text_index=2, reading_index=1, skip_lines=1, max_entries=80000)
+    rank_list = RankList.from_rank_list("NWJC_frequencylist_suw_ver2022_02/NWJC_frequencylist_suw_ver2022_02.tsv",
+                                        separator="\t", text_index=2, reading_index=1, skip_lines=1, max_entries=80000)
     dictionary = FrequencyDictionary(
-        frequency_list, "ウェブ", "src v2022_02 yomi v0",
+        rank_list, "ウェブ", "src v2022_02 yomi v0",
         "NINJAL, uncomputable", "https://github.com/uncomputable/frequency-dict",
         """『国語研日本語ウェブコーパス（NWJC）』はウェブを母集団として100億語規模を目標として構築した日本語コーパスです。 
         
@@ -375,9 +375,9 @@ def chj_modern():
         separator="\t", text_index=1, reading_index=0, frequency_index=16, skip_lines=1, encoding="utf-16")
     occurrences1.unify_distinct(occurrences2)
 
-    frequency_list = occurrences1.to_rank_list()
+    rank_list = occurrences1.to_rank_list()
     dictionary = FrequencyDictionary(
-        frequency_list, "明治〜大正", "src v2022_03 yomi v0",
+        rank_list, "明治〜大正", "src v2022_03 yomi v0",
         "NINJAL, uncomputable", "https://github.com/uncomputable/frequency-dict",
         """ 『日本語歴史コーパス（CHJ）』は、デジタル時代における日本語史研究の基礎資料として開発を進めているコーパスです。
         
@@ -406,9 +406,9 @@ def chj_premodern():
         separator="\t", text_index=1, reading_index=0, frequency_index=13, skip_lines=1, encoding="utf-16")
     occurrences1.unify_conservative_overlap(occurrences2)
 
-    frequency_list = occurrences1.to_rank_list()
+    rank_list = occurrences1.to_rank_list()
     dictionary = FrequencyDictionary(
-        frequency_list, "奈良〜江戸", "src v2022_03 yomi v0",
+        rank_list, "奈良〜江戸", "src v2022_03 yomi v0",
         "NINJAL, uncomputable", "https://github.com/uncomputable/frequency-dict",
         """『日本語歴史コーパス（CHJ）』は、デジタル時代における日本語史研究の基礎資料として開発を進めているコーパスです。
         
@@ -433,11 +433,11 @@ def bccwj():
     https://repository.ninjal.ac.jp/
     Go to 言語資源 → 現代日本語書き言葉均衡コーパス → 『現代日本語書き言葉均衡コーパス』短単位語彙表(Version 1.1)
     """
-    frequency_list = FrequencyList.from_rank_list(
+    rank_list = RankList.from_rank_list(
         "BCCWJ_frequencylist_suw_ver1_1.tsv",
         separator="\t", text_index=2, reading_index=1, skip_lines=1, max_entries=80000)
     dictionary = FrequencyDictionary(
-        frequency_list, "書き言葉", "src v1.1 (2017-12) yomi v0",
+        rank_list, "書き言葉", "src v1.1 (2017-12) yomi v0",
         "NINJAL, uncomputable", "https://github.com/uncomputable/frequency-dict",
         """『現代日本語書き言葉均衡コーパス（BCCWJ）』は、現代日本語の書き言葉の全体像を把握するために構築したコーパスであり、現在、日本語について入手可能な唯一の均衡コーパスです。
         
@@ -456,11 +456,11 @@ def csj():
     https://repository.ninjal.ac.jp/
     Go to 言語資源 → 日本語話し言葉コーパス → 『日本語話し言葉コーパス』語彙表(Version 201803)
     """
-    frequency_list = FrequencyList.from_rank_list(
+    rank_list = RankList.from_rank_list(
         "CSJ_frequencylist_suw_ver201803.tsv",
         separator="\t", text_index=2, reading_index=1, skip_lines=1, max_entries=80000)
     dictionary = FrequencyDictionary(
-        frequency_list, "話し言葉", "src v2018-03 yomi v0",
+        rank_list, "話し言葉", "src v2018-03 yomi v0",
         "NINJAL, uncomputable", "https://github.com/uncomputable/frequency-dict",
         """『日本語話し言葉コーパス（CSJ）』は、日本語の自発音声を大量にあつめて多くの研究用情報を付加した話し言葉研究用のデータベースであり、国立国語研究所・ 情報通信研究機構（旧通信総合研究所）・ 東京工業大学 が共同開発した、質・量ともに世界最高水準の話し言葉データベースです。
 
