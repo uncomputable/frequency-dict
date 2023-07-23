@@ -1,3 +1,4 @@
+import argparse
 from dataclasses import dataclass
 from typing import Optional, List
 import re
@@ -283,6 +284,8 @@ class MetaDictionary:
             self._index_to_zip(zip_file)
             self._term_meta_banks_to_zip(zip_file)
 
+        print("Finished {}".format(file_path))
+
     def _index_to_zip(self, zip_file: ZipFile):
         index_obj = {
             "title": self.title,
@@ -337,17 +340,21 @@ class MetaDictionary:
                 self.attribution = index["attribution"]
 
 
-def nwjc():
+def nwjc(args: argparse.Namespace):
     """
     NINJAL Web Japanese Corpus
+
+    File:
+
+    NWJC_frequencylist_suw_ver2022_02.tsv
 
     File source:
 
     https://repository.ninjal.ac.jp/
     Go to 言語資源 → 国語研日本語ウェブコーパス → 『国語研日本語ウェブコーパス』中納言搭載データ語彙表
     """
-    rank_list = RankList.from_rank_list("NWJC_frequencylist_suw_ver2022_02/NWJC_frequencylist_suw_ver2022_02.tsv",
-                                        separator="\t", text_index=2, reading_index=1, skip_lines=1, max_entries=80000)
+    rank_list = RankList.from_rank_list(
+        args.file_suw, separator="\t", text_index=2, reading_index=1, skip_lines=1, max_entries=80000)
     dictionary = MetaDictionary(
         rank_list, "ウェブ", "src v2022_02 yomi v0",
         "NINJAL, uncomputable", "https://github.com/uncomputable/frequency-dict",
@@ -358,9 +365,14 @@ def nwjc():
     dictionary.to_zip("NWCJ.zip")
 
 
-def chj_modern():
+def chj_modern(args: argparse.Namespace):
     """
     Corpus of Historical Japanese: Modern Era
+
+    Files:
+
+    CHJ-LEX_SUW_2022.3_modern_nonmag.csv
+    CHJ-LEX_SUW_2022.3_modern_mag.csv
 
     File source:
 
@@ -368,11 +380,9 @@ def chj_modern():
     Go to 言語資源 → 日本語歴史コーパス → 『日本語歴史コーパス』統合語彙表（バージョン2022.03）
     """
     occurrences1 = TermOccurrences.from_frequency_list(
-        "CHJ_integratedFequencyList_202203/CHJ-LEX_SUW_2022.3_modern_nonmag.csv",
-        separator="\t", text_index=1, reading_index=0, frequency_index=16, skip_lines=1, encoding="utf-16")
+        args.file_suw[0], separator="\t", text_index=1, reading_index=0, frequency_index=16, skip_lines=1, encoding="utf-16")
     occurrences2 = TermOccurrences.from_frequency_list(
-        "CHJ_integratedFequencyList_202203/CHJ-LEX_SUW_2022.3_modern_mag.csv",
-        separator="\t", text_index=1, reading_index=0, frequency_index=16, skip_lines=1, encoding="utf-16")
+        args.file_suw[1], separator="\t", text_index=1, reading_index=0, frequency_index=16, skip_lines=1, encoding="utf-16")
     occurrences1.unify_distinct(occurrences2)
 
     rank_list = occurrences1.to_rank_list()
@@ -389,9 +399,14 @@ def chj_modern():
     dictionary.to_zip("CHJ_modern.zip")
 
 
-def chj_premodern():
+def chj_premodern(args: argparse.Namespace):
     """
     Corpus of Historical Japanese: Premodern Era
+
+    Files:
+
+    CHJ-LEX_SUW_2022.3_premodern.csv
+    CHJ-LEX_LUW_2022.3.csv
 
     File source:
 
@@ -399,12 +414,12 @@ def chj_premodern():
     Go to 言語資源 → 日本語歴史コーパス → 『日本語歴史コーパス』統合語彙表（バージョン2022.03）
     """
     occurrences1 = TermOccurrences.from_frequency_list(
-        "CHJ_integratedFequencyList_202203/CHJ-LEX_SUW_2022.3_premodern.csv",
-        separator="\t", text_index=1, reading_index=0, frequency_index=16, skip_lines=1, encoding="utf-16")
-    occurrences2 = TermOccurrences.from_frequency_list(
-        "CHJ_integratedFequencyList_202203/CHJ-LEX_LUW_2022.3.csv",
-        separator="\t", text_index=1, reading_index=0, frequency_index=13, skip_lines=1, encoding="utf-16")
-    occurrences1.unify_conservative_overlap(occurrences2)
+        args.file_suw, separator="\t", text_index=1, reading_index=0, frequency_index=16, skip_lines=1, encoding="utf-16")
+
+    if args.file_luw:
+        occurrences2 = TermOccurrences.from_frequency_list(
+            args.file_luw, separator="\t", text_index=1, reading_index=0, frequency_index=13, skip_lines=1, encoding="utf-16")
+        occurrences1.unify_conservative_overlap(occurrences2)
 
     rank_list = occurrences1.to_rank_list()
     dictionary = MetaDictionary(
@@ -424,9 +439,13 @@ def chj_premodern():
     dictionary.to_zip("CHJ_premodern.zip")
 
 
-def bccwj():
+def bccwj(args: argparse.Namespace):
     """
     Balanced Corpus of Contemporary Written Japanese
+
+    File:
+
+    BCCWJ_frequencylist_suw_ver1_1.tsv
 
     File source:
 
@@ -434,8 +453,7 @@ def bccwj():
     Go to 言語資源 → 現代日本語書き言葉均衡コーパス → 『現代日本語書き言葉均衡コーパス』短単位語彙表(Version 1.1)
     """
     rank_list = RankList.from_rank_list(
-        "BCCWJ_frequencylist_suw_ver1_1.tsv",
-        separator="\t", text_index=2, reading_index=1, skip_lines=1, max_entries=80000)
+        args.file_suw, separator="\t", text_index=2, reading_index=1, skip_lines=1, max_entries=80000)
     dictionary = MetaDictionary(
         rank_list, "書き言葉", "src v1.1 (2017-12) yomi v0",
         "NINJAL, uncomputable", "https://github.com/uncomputable/frequency-dict",
@@ -447,9 +465,13 @@ def bccwj():
     dictionary.to_zip("BCCWJ.zip")
 
 
-def csj():
+def csj(args: argparse.Namespace):
     """
     Corpus of Spontaneous Japanese
+
+    File:
+
+    CSJ_frequencylist_suw_ver201803.tsv
 
     File source:
 
@@ -457,8 +479,7 @@ def csj():
     Go to 言語資源 → 日本語話し言葉コーパス → 『日本語話し言葉コーパス』語彙表(Version 201803)
     """
     rank_list = RankList.from_rank_list(
-        "CSJ_frequencylist_suw_ver201803.tsv",
-        separator="\t", text_index=2, reading_index=1, skip_lines=1, max_entries=80000)
+        args.file_suw, separator="\t", text_index=2, reading_index=1, skip_lines=1, max_entries=80000)
     dictionary = MetaDictionary(
         rank_list, "話し言葉", "src v2018-03 yomi v0",
         "NINJAL, uncomputable", "https://github.com/uncomputable/frequency-dict",
@@ -470,21 +491,53 @@ def csj():
     dictionary.to_zip("CSJ.zip")
 
 
-def convert_jpdb():
+def convert_jpdb(args: argparse.Namespace):
     """
     Corpus based on JPDB
+
+    File:
+
+    Freq.JPDB_2022-05-10T03_27_02.930Z.zip
 
     File source:
 
     https://github.com/MarvNC/jpdb-freq-list
     """
-    dictionary = MetaDictionary.from_zip("Freq.JPDB_2022-05-10T03_27_02.930Z.zip", max_entries=80000)
+    dictionary = MetaDictionary.from_zip(args.file, max_entries=80000)
     dictionary.to_zip("JPDB.zip")
 
 
 # TODO: Substitute 重重 for 重々 in to_zip function
 # FIXME: NWJC: 読み occurs multiple times as different parts of speech
 # FIXME: Some words (の, 場[ば]) occur multiple times in the same frequency file!
-# TODO: CLI arguments
 if __name__ == "__main__":
-    csj()
+    parser = argparse.ArgumentParser(description="Generate yomichan dictionaries from raw frequency lists.")
+    subparsers = parser.add_subparsers(required=True)
+
+    parser_a = subparsers.add_parser("bccwj", help="Balanced Corpus of Contemporary Written Japanese")
+    parser_a.add_argument("file_suw", type=str, help="Path to BCCWJ_frequencylist_suw_ver1_1.tsv")
+    parser_a.set_defaults(func=bccwj)
+
+    parser_b = subparsers.add_parser("csj", help="Corpus of Spontaneous Japanese")
+    parser_b.add_argument("file_suw", type=str, help="Path to CSJ_frequencylist_suw_ver201803.tsv")
+    parser_b.set_defaults(func=csj)
+
+    parser_c = subparsers.add_parser("nwjc", help="NINJAL Web Japanese Corpus")
+    parser_c.add_argument("file_suw", type=str, help="Path to NWJC_frequencylist_suw_ver2022_02.tsv")
+    parser_c.set_defaults(func=nwjc)
+
+    parser_d = subparsers.add_parser("chj_premodern", help=" Corpus of Historical Japanese: Premodern Era")
+    parser_d.add_argument("file_suw", type=str, help="Path to CHJ-LEX_SUW_2022.3_premodern.csv")
+    parser_d.add_argument("file_luw", nargs="?", type=str, help="Path to CHJ-LEX_LUW_2022.3.csv")
+    parser_d.set_defaults(func=chj_premodern)
+
+    parser_e = subparsers.add_parser("chj_modern", help="Corpus of Historical Japanese: Modern Era")
+    parser_e.add_argument("file_suw", nargs=2, type=str, help="Path to CHJ-LEX_SUW_2022.3_modern_{nonmag,mag}.csv")
+    parser_e.set_defaults(func=chj_modern)
+
+    parser_f = subparsers.add_parser("jpdb", help="Corpus based on JPDB [convert yomichan dictionary]")
+    parser_f.add_argument("file", type=str, help="Path to Freq.JPDB_2022-05-10T03_27_02.930Z.zip")
+    parser_f.set_defaults(func=convert_jpdb)
+
+    args = parser.parse_args()
+    args.func(args)
