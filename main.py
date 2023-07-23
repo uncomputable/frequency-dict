@@ -6,6 +6,7 @@ import jaconv
 from zipfile import ZipFile, ZIP_DEFLATED
 from collections import defaultdict
 import json
+from datetime import date
 
 KANJI = re.compile(r"[一-龯ヶ々〆]")
 KANA = re.compile(r"[ぁ-ゟ゠-ヿ]")
@@ -356,7 +357,7 @@ def nwjc(args: argparse.Namespace):
     rank_list = RankList.from_rank_list(
         args.file_suw, separator="\t", text_index=2, reading_index=1, skip_lines=1, max_entries=80000)
     dictionary = MetaDictionary(
-        rank_list, "ウェブ", "src v2022_02 yomi v0",
+        rank_list, "ウェブ", "src v2022-02 yomi v{}".format(date.today().isoformat()),
         "NINJAL, uncomputable", "https://github.com/uncomputable/frequency-dict",
         """『国語研日本語ウェブコーパス（NWJC）』はウェブを母集団として100億語規模を目標として構築した日本語コーパスです。 
         
@@ -387,7 +388,7 @@ def chj_modern(args: argparse.Namespace):
 
     rank_list = occurrences1.to_rank_list()
     dictionary = MetaDictionary(
-        rank_list, "明治〜大正", "src v2022_03 yomi v0",
+        rank_list, "明治〜大正", "src v2022-03 yomi v{}".format(date.today().isoformat()),
         "NINJAL, uncomputable", "https://github.com/uncomputable/frequency-dict",
         """ 『日本語歴史コーパス（CHJ）』は、デジタル時代における日本語史研究の基礎資料として開発を進めているコーパスです。
         
@@ -422,8 +423,9 @@ def chj_premodern(args: argparse.Namespace):
         occurrences1.unify_conservative_overlap(occurrences2)
 
     rank_list = occurrences1.to_rank_list()
+    suw_luw_version = "SUW+LUW" if args.file_luw else "SUW"
     dictionary = MetaDictionary(
-        rank_list, "奈良〜江戸", "src v2022_03 yomi v0",
+        rank_list, "奈良〜江戸", "src v2022-03 yomi v{} {}".format(date.today().isoformat(), suw_luw_version),
         "NINJAL, uncomputable", "https://github.com/uncomputable/frequency-dict",
         """『日本語歴史コーパス（CHJ）』は、デジタル時代における日本語史研究の基礎資料として開発を進めているコーパスです。
         
@@ -462,8 +464,9 @@ def bccwj(args: argparse.Namespace):
         occurrences1.unify_conservative_overlap(occurrences2)
 
     rank_list = occurrences1.to_rank_list()
+    suw_luw_version = "SUW+LUW" if args.file_luw else "SUW"
     dictionary = MetaDictionary(
-        rank_list, "書き言葉", "src v1.1 (2017-12) yomi v0",
+        rank_list, "書き言葉", "src v1.1 (2017-12) yomi v{} {}".format(date.today().isoformat(), suw_luw_version),
         "NINJAL, uncomputable", "https://github.com/uncomputable/frequency-dict",
         """『現代日本語書き言葉均衡コーパス（BCCWJ）』は、現代日本語の書き言葉の全体像を把握するために構築したコーパスであり、現在、日本語について入手可能な唯一の均衡コーパスです。
         
@@ -489,7 +492,7 @@ def csj(args: argparse.Namespace):
     rank_list = RankList.from_rank_list(
         args.file_suw, separator="\t", text_index=2, reading_index=1, skip_lines=1, max_entries=80000)
     dictionary = MetaDictionary(
-        rank_list, "話し言葉", "src v2018-03 yomi v0",
+        rank_list, "話し言葉", "src v2018-03 yomi v{}".format(date.today().isoformat()),
         "NINJAL, uncomputable", "https://github.com/uncomputable/frequency-dict",
         """『日本語話し言葉コーパス（CSJ）』は、日本語の自発音声を大量にあつめて多くの研究用情報を付加した話し言葉研究用のデータベースであり、国立国語研究所・ 情報通信研究機構（旧通信総合研究所）・ 東京工業大学 が共同開発した、質・量ともに世界最高水準の話し言葉データベースです。
 
