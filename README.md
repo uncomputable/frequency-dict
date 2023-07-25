@@ -12,17 +12,25 @@ The go-to address for Japanese linguistics is [NINJAL: The National Institute fo
 
 ### [Balanced Corpus of Contemporary Written Japanese (BCCWJ)](https://clrd.ninjal.ac.jp/bccwj/index.html)
 
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/3.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/3.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/3.0/">Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License</a>.
+
 One of the largest and most popular corpora out there. It focuses on written language.
 
 ### [Corpus of Spontaneous Japanese (CSJ)](https://clrd.ninjal.ac.jp/csj/index.html)
+
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/3.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/3.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/3.0/">Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License</a>.
 
 Another popular corpus with a focus on spoken language.
 
 ### [NINJAL Web Japanese Corpus (NWJC)](https://masayu-a.github.io/NWJC/)
 
+<a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.
+
 A relatively unknown corpus which was created by crawling the web. Compared to BCCJW (2017), this is much newer (2022).
 
 ### [Corpus of Historical Japanese (CHJ)](https://clrd.ninjal.ac.jp/chj/index.html)
+
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
 
 A relatively unknown corpus that covers different eras of Japanese history. _(How cool is that?!)_
 
@@ -34,11 +42,9 @@ _(We might even separate single eras, but this reduces the respective sample siz
 
 ## Where are the dictionaries?
 
-You can find the NWJC and CHJ dictionaries as GitHub releases.
+The dictionaries for NWJC and CHJ you can find as GitHub releases. They share the same license as their respective source data (see above). This is **different** from the license I use for my own code.
 
-For BCCWJ and CSJ, as always, there are licensing issues :)
-
-NINJAL published the data under the [CC BY-NC-ND 3.0 license](https://creativecommons.org/licenses/by-nc-nd/3.0/deed.en). This means we may not remix, transform or build upon the original and distribute the result.
+For BCCWJ and CSJ, the license of the original data (see above) doesn't allow us to remix, transform or build upon the original and distribute the result.
 
 My solution is to publish the [raw data in a separate repo](https://github.com/uncomputable/frequency-data). _(This data is already public on the university website.)_ You can use my script to generate a frequency dictionary on your local machine.
 
