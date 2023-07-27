@@ -1,6 +1,6 @@
 import argparse
 from dataclasses import dataclass
-from typing import Optional, List
+from typing import Optional, List, Tuple
 import re
 import jaconv
 from zipfile import ZipFile, ZIP_DEFLATED
@@ -61,11 +61,24 @@ class TermMetadata:
 
 @dataclass
 class Term:
+    """
+    Term that occurred somewhere in the frequency list.
+    """
     text: str
+    """
+    Term surface. This is how the term would normally be written.
+    """
     reading: Optional[str]
+    """
+    Term reading.
+    """
+    provenance: Optional[str]
+    """
+    Where the term came from. Source in which the term occurred.
+    """
 
     def __hash__(self) -> hash:
-        return hash((self.text, self.reading))
+        return hash((self.text, self.reading, self.provenance))
 
 
 @dataclass
@@ -80,7 +93,8 @@ class TermOccurrences:
 
     @classmethod
     def from_frequency_list(cls, file_path: str, separator: str, text_index: int, reading_index: int,
-                            frequency_index: int, skip_lines: Optional[int] = None, encoding: str = "utf-8") -> "TermOccurrences":
+                            frequency_index: int, provenance_indices: Optional[Tuple[int, ...]] = None,
+                            skip_lines: Optional[int] = None, encoding: str = "utf-8") -> "TermOccurrences":
         """
         Count the number of term occurrences in a frequency list.
 
@@ -105,6 +119,7 @@ class TermOccurrences:
                 split_line = line.split(separator)
                 text = split_line[text_index]
 
+                # Term surface and reading
                 if not KANJI.search(text):
                     if not KANA.search(text):
                         # Weird entry like Arabic numbers, Latin characters or punctuation
@@ -115,8 +130,14 @@ class TermOccurrences:
                 else:
                     reading = jaconv.kata2hira(split_line[reading_index])
 
+                # Term provenance
+                provenance = ""
+                for index in provenance_indices:
+                    provenance += split_line[index] + ","
+
+                term = Term(text, reading, provenance)
+                # Number of term occurrences
                 occurrences = int(split_line[frequency_index])
-                term = Term(text, reading)
                 count[term] += occurrences
 
         return TermOccurrences(count)
@@ -175,14 +196,18 @@ class TermOccurrences:
         """
         Convert the counter to a list of term frequency ranks.
         """
-        ranked_terms = sorted(self.counts.items(), key=lambda x: -x[1])
+        grouped_term_counts = defaultdict(int)
+        for term, count in self.counts.items():
+            grouped_term_counts[(term.text, term.reading)] += count
+
+        ranked_terms = sorted(grouped_term_counts.items(), key=lambda x: -x[1])
         term_meta_bank = list()
 
-        for rank, (term, occurrences) in enumerate(ranked_terms):
+        for rank, ((text, reading), _) in enumerate(ranked_terms):
             if len(term_meta_bank) >= max_entries:
                 break
 
-            term_meta = TermMetadata(term.text, term.reading, rank)
+            term_meta = TermMetadata(text, reading, rank)
             term_meta_bank.append(term_meta)
 
         return RankList(term_meta_bank)
@@ -429,11 +454,13 @@ def chj_premodern(args: argparse.Namespace):
     Go to 言語資源 → 日本語歴史コーパス → 『日本語歴史コーパス』統合語彙表（バージョン2022.03）
     """
     occurrences1 = TermOccurrences.from_frequency_list(
-        args.file_suw, separator="\t", text_index=1, reading_index=0, frequency_index=16, skip_lines=1, encoding="utf-16")
+        args.file_suw, separator="\t", text_index=1, reading_index=0, frequency_index=16,
+        provenance_indices=(9, 10, 13), skip_lines=1, encoding="utf-16")
 
     if args.file_luw:
         occurrences2 = TermOccurrences.from_frequency_list(
-            args.file_luw, separator="\t", text_index=1, reading_index=0, frequency_index=13, skip_lines=1, encoding="utf-16")
+            args.file_luw, separator="\t", text_index=1, reading_index=0, frequency_index=13,
+            provenance_indices=(8, 9, 12), skip_lines=1, encoding="utf-16")
         occurrences1.unify_conservative_overlap(occurrences2)
 
     rank_list = occurrences1.to_rank_list(max_entries=80000)
