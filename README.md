@@ -6,6 +6,12 @@ Also a generator for frequency dictionaries from raw data.
 
 A frequency dictionary displays the ranked frequency of a term inside a context, such as written or spoken language, the web or historic eras.
 
+## Features
+
+- **Latest data** from NINJAL
+- **Careful merging of SUW** (short-unit words; simple words) **and LUW** (long-unit words; compound words): Some corpora are split into an SUW and an LUW part. There is an overlap between the two, so merging frequencies from both may count the same occurrence of a word twice. This corrupts the frequency rank. We merge in a conservative way that prevents this from happening.
+- **Frequency rank cap**: Include words with a frequency rank up to a threshold. Ignore all words that are rarer than that. This keeps the dictionary small and prevents the Japanese learner from memorizing useless vocabulary :P
+
 ## Corpora
 
 The go-to address for Japanese linguistics is [NINJAL: The National Institute for Japanese Language and Linguistics](https://www.ninjal.ac.jp/).
@@ -44,9 +50,7 @@ _(We might even separate single eras, but this reduces the respective sample siz
 
 The dictionaries for NWJC and CHJ you can find as GitHub releases. They share the same license as their respective source data (see above). This is **different** from the license I use for my own code.
 
-For BCCWJ and CSJ, the license of the original data (see above) doesn't allow us to remix, transform or build upon the original and distribute the result.
-
-My solution is to publish the [raw data in a separate repo](https://github.com/uncomputable/frequency-data). _(This data is already public on the university website.)_ You can use my script to generate a frequency dictionary on your local machine.
+For BCCWJ and CSJ, their license (see above) doesn't allow us to upload any variants of the original data. My solution is to publish the [raw data in a separate repo](https://github.com/uncomputable/frequency-data). _(This data is already public on the university website.)_ You can use my script to generate a frequency dictionary on your local machine.
 
 ## Setup
 
