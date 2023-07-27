@@ -394,7 +394,7 @@ def nwjc(args: argparse.Namespace):
     Go to 言語資源 → 国語研日本語ウェブコーパス → 『国語研日本語ウェブコーパス』中納言搭載データ語彙表
     """
     rank_list = RankList.from_rank_list(
-        args.file_suw, separator="\t", text_index=2, reading_index=1, skip_lines=1, max_entries=80000)
+        args.file_suw, separator="\t", text_index=2, reading_index=1, skip_lines=1, max_entries=args.max_entries)
     dictionary = MetaDictionary(
         rank_list, "ウェブ", "src v2022-02 yomi v{}".format(date.today().isoformat()),
         "NINJAL, uncomputable", "https://github.com/uncomputable/frequency-dict",
@@ -425,7 +425,7 @@ def chj_modern(args: argparse.Namespace):
         args.file_suw[1], separator="\t", text_index=1, reading_index=0, frequency_index=16, skip_lines=1, encoding="utf-16")
     occurrences1.unify_distinct(occurrences2)
 
-    rank_list = occurrences1.to_rank_list(max_entries=80000)
+    rank_list = occurrences1.to_rank_list(max_entries=args.max_entries)
     dictionary = MetaDictionary(
         rank_list, "明治〜大正", "src v2022-03 yomi v{}".format(date.today().isoformat()),
         "NINJAL, uncomputable", "https://github.com/uncomputable/frequency-dict",
@@ -463,7 +463,7 @@ def chj_premodern(args: argparse.Namespace):
             provenance_indices=(8, 9, 12), skip_lines=1, encoding="utf-16")
         occurrences1.unify_conservative_overlap(occurrences2)
 
-    rank_list = occurrences1.to_rank_list(max_entries=80000)
+    rank_list = occurrences1.to_rank_list(max_entries=args.max_entries)
     suw_luw_version = "SUW+LUW" if args.file_luw else "SUW"
     dictionary = MetaDictionary(
         rank_list, "奈良〜江戸", "src v2022-03 yomi v{} {}".format(date.today().isoformat(), suw_luw_version),
@@ -504,7 +504,7 @@ def bccwj(args: argparse.Namespace):
             args.file_luw, separator="\t", text_index=2, reading_index=1, frequency_index=6, skip_lines=1)
         occurrences1.unify_conservative_overlap(occurrences2)
 
-    rank_list = occurrences1.to_rank_list(max_entries=80000)
+    rank_list = occurrences1.to_rank_list(max_entries=args.max_entries)
     suw_luw_version = "SUW+LUW" if args.file_luw else "SUW"
     dictionary = MetaDictionary(
         rank_list, "書き言葉", "src v1.1 (2017-12) yomi v{} {}".format(date.today().isoformat(), suw_luw_version),
@@ -531,7 +531,7 @@ def csj(args: argparse.Namespace):
     Go to 言語資源 → 日本語話し言葉コーパス → 『日本語話し言葉コーパス』語彙表(Version 201803)
     """
     rank_list = RankList.from_rank_list(
-        args.file_suw, separator="\t", text_index=2, reading_index=1, skip_lines=1, max_entries=80000)
+        args.file_suw, separator="\t", text_index=2, reading_index=1, skip_lines=1, max_entries=args.max_entries)
     dictionary = MetaDictionary(
         rank_list, "話し言葉", "src v2018-03 yomi v{}".format(date.today().isoformat()),
         "NINJAL, uncomputable", "https://github.com/uncomputable/frequency-dict",
@@ -555,7 +555,7 @@ def convert_jpdb(args: argparse.Namespace):
 
     https://github.com/MarvNC/jpdb-freq-list
     """
-    dictionary = MetaDictionary.from_zip(args.file, max_entries=80000)
+    dictionary = MetaDictionary.from_zip(args.file, max_entries=args.max_entries)
     dictionary.to_zip("JPDB.zip")
 
 
@@ -569,27 +569,33 @@ if __name__ == "__main__":
     parser_a = subparsers.add_parser("bccwj", help="Balanced Corpus of Contemporary Written Japanese")
     parser_a.add_argument("file_suw", type=str, help="Path to BCCWJ_frequencylist_suw_ver1_1.tsv")
     parser_a.add_argument("file_luw", nargs="?", type=str, help="Path to BCCWJ_frequencylist_luw2_ver1_1.tsv")
+    parser_a.add_argument("--max", type=int, default=80000, help="Maximum term frequency included in dictionary")
     parser_a.set_defaults(func=bccwj)
 
     parser_b = subparsers.add_parser("csj", help="Corpus of Spontaneous Japanese")
     parser_b.add_argument("file_suw", type=str, help="Path to CSJ_frequencylist_suw_ver201803.tsv")
+    parser_b.add_argument("--max", type=int, default=80000, help="Maximum term frequency included in dictionary")
     parser_b.set_defaults(func=csj)
 
     parser_c = subparsers.add_parser("nwjc", help="NINJAL Web Japanese Corpus")
     parser_c.add_argument("file_suw", type=str, help="Path to NWJC_frequencylist_suw_ver2022_02.tsv")
+    parser_c.add_argument("--max", type=int, default=80000, help="Maximum term frequency included in dictionary")
     parser_c.set_defaults(func=nwjc)
 
     parser_d = subparsers.add_parser("chj_premodern", help=" Corpus of Historical Japanese: Premodern Era")
     parser_d.add_argument("file_suw", type=str, help="Path to CHJ-LEX_SUW_2022.3_premodern.csv")
     parser_d.add_argument("file_luw", nargs="?", type=str, help="Path to CHJ-LEX_LUW_2022.3.csv")
+    parser_d.add_argument("--max", type=int, default=80000, help="Maximum term frequency included in dictionary")
     parser_d.set_defaults(func=chj_premodern)
 
     parser_e = subparsers.add_parser("chj_modern", help="Corpus of Historical Japanese: Modern Era")
     parser_e.add_argument("file_suw", nargs=2, type=str, help="Path to CHJ-LEX_SUW_2022.3_modern_{nonmag,mag}.csv")
+    parser_e.add_argument("--max", type=int, default=80000, help="Maximum term frequency included in dictionary")
     parser_e.set_defaults(func=chj_modern)
 
     parser_f = subparsers.add_parser("jpdb", help="Corpus based on JPDB [convert yomichan dictionary]")
     parser_f.add_argument("file", type=str, help="Path to Freq.JPDB_2022-05-10T03_27_02.930Z.zip")
+    parser_f.add_argument("--max", type=int, default=80000, help="Maximum term frequency included in dictionary")
     parser_f.set_defaults(func=convert_jpdb)
 
     args = parser.parse_args()
