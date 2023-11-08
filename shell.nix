@@ -1,13 +1,12 @@
 { pkgs ? import <nixpkgs> {}
 }:
 let
-  my-python-packages = python-packages: with python-packages; [
+  python3 = pkgs.python3.withPackages (p: with p; [
     jaconv
-  ];
-  my-python = pkgs.python3.withPackages my-python-packages;
+  ]);
 in
   pkgs.mkShell {
     buildInputs = [
-      my-python
+      python3
     ];
   }
