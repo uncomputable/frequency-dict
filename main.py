@@ -411,13 +411,13 @@ def chj_modern(args: argparse.Namespace):
 
     Files:
 
-    CHJ-LEX_SUW_2022.3_modern_nonmag.csv
-    CHJ-LEX_SUW_2022.3_modern_mag.csv
+    CHJ-LEX_SUW_2023.3_modern_nonmag.csv
+    CHJ-LEX_SUW_2023.3_modern_mag.csv
 
     File source:
 
     https://repository.ninjal.ac.jp/
-    Go to 言語資源 → 日本語歴史コーパス → 『日本語歴史コーパス』統合語彙表（バージョン2022.03）
+    Go to 言語資源 → 日本語歴史コーパス → 『日本語歴史コーパス』統合語彙表（バージョン2023.03）
     """
     occurrences1 = TermOccurrences.from_frequency_list(
         args.file_suw[0], separator="\t", text_index=1, reading_index=0, frequency_index=16, skip_lines=1, encoding="utf-16")
@@ -427,7 +427,7 @@ def chj_modern(args: argparse.Namespace):
 
     rank_list = occurrences1.to_rank_list(max_entries=args.max_entries)
     dictionary = MetaDictionary(
-        rank_list, "明治〜大正", "src v2022-03 yomi v{}".format(date.today().isoformat()),
+        rank_list, "明治〜大正", "src v2023-03 yomi v{}".format(date.today().isoformat()),
         "NINJAL, uncomputable", "https://github.com/uncomputable/frequency-dict",
         """ 『日本語歴史コーパス（CHJ）』は、デジタル時代における日本語史研究の基礎資料として開発を進めているコーパスです。
         
@@ -445,13 +445,13 @@ def chj_premodern(args: argparse.Namespace):
 
     Files:
 
-    CHJ-LEX_SUW_2022.3_premodern.csv
-    CHJ-LEX_LUW_2022.3.csv
+    CHJ-LEX_SUW_2023.3_premodern.csv
+    CHJ-LEX_LUW_2023.3.csv
 
     File source:
 
     https://repository.ninjal.ac.jp/
-    Go to 言語資源 → 日本語歴史コーパス → 『日本語歴史コーパス』統合語彙表（バージョン2022.03）
+    Go to 言語資源 → 日本語歴史コーパス → 『日本語歴史コーパス』統合語彙表（バージョン2023.03）
     """
     occurrences1 = TermOccurrences.from_frequency_list(
         args.file_suw, separator="\t", text_index=1, reading_index=0, frequency_index=16,
@@ -466,7 +466,7 @@ def chj_premodern(args: argparse.Namespace):
     rank_list = occurrences1.to_rank_list(max_entries=args.max_entries)
     suw_luw_version = "SUW+LUW" if args.file_luw else "SUW"
     dictionary = MetaDictionary(
-        rank_list, "奈良〜江戸", "src v2022-03 yomi v{} {}".format(date.today().isoformat(), suw_luw_version),
+        rank_list, "奈良〜江戸", "src v2023-03 yomi v{} {}".format(date.today().isoformat(), suw_luw_version),
         "NINJAL, uncomputable", "https://github.com/uncomputable/frequency-dict",
         """『日本語歴史コーパス（CHJ）』は、デジタル時代における日本語史研究の基礎資料として開発を進めているコーパスです。
         
@@ -584,12 +584,12 @@ if __name__ == "__main__":
 
     parser_d = subparsers.add_parser("chj_premodern", help=" Corpus of Historical Japanese: Premodern Era")
     parser_d.add_argument("file_suw", type=str, help="Path to CHJ-LEX_SUW_2022.3_premodern.csv")
-    parser_d.add_argument("file_luw", nargs="?", type=str, help="Path to CHJ-LEX_LUW_2022.3.csv")
+    parser_d.add_argument("file_luw", nargs="?", type=str, help="Path to CHJ-LEX_LUW_2023.3.csv")
     parser_d.add_argument("--max", type=int, default=80000, help="Maximum term frequency included in dictionary")
     parser_d.set_defaults(func=chj_premodern)
 
     parser_e = subparsers.add_parser("chj_modern", help="Corpus of Historical Japanese: Modern Era")
-    parser_e.add_argument("file_suw", nargs=2, type=str, help="Path to CHJ-LEX_SUW_2022.3_modern_{nonmag,mag}.csv")
+    parser_e.add_argument("file_suw", nargs=2, type=str, help="Path to CHJ-LEX_SUW_2023.3_modern_{nonmag,mag}.csv")
     parser_e.add_argument("--max", type=int, default=80000, help="Maximum term frequency included in dictionary")
     parser_e.set_defaults(func=chj_modern)
 
