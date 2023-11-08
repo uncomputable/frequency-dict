@@ -2,41 +2,41 @@
 
 High-quality frequency dictionaries ready to be imported into [Yomichan](https://foosoft.net/projects/yomichan/).
 
-Also a generator for frequency dictionaries from raw data.
+Generate frequency dictionaries from source for customization.
 
-A frequency dictionary displays the ranked frequency of a term inside a context, such as written or spoken language, the web or historic eras.
+A frequency dictionary displays the ranked frequency (1st most frequent, 2nd most frequent, ...) of a word inside a context (written language, spoken language, web, Showa era, Heisei era, ...).
+
+Frequency dictionaries can help language learners distinguish common words from uncommon ones.
 
 ## Features
 
-- **Latest data** from NINJAL
-- **Careful merging of SUW** (short-unit words; simple words) **and LUW** (long-unit words; compound words): Some corpora are split into an SUW and an LUW part. There is an overlap between the two, so merging frequencies from both may count the same occurrence of a word twice. This corrupts the frequency rank. We merge in a conservative way that prevents this from happening.
-- **Frequency rank cap**: Include words with a frequency rank up to a threshold. Ignore all words that are rarer than that. This keeps the dictionary small and prevents the Japanese learner from memorizing useless vocabulary :P
+### Latest data
 
-## Corpora
+The data is kept up to date with NINJAL.
 
-The go-to address for Japanese linguistics is [NINJAL: The National Institute for Japanese Language and Linguistics](https://www.ninjal.ac.jp/).
+### Exclusive dictionaries
 
-### [Balanced Corpus of Contemporary Written Japanese (BCCWJ)](https://clrd.ninjal.ac.jp/bccwj/index.html)
+I haven't seen dictionaries for CHJ, SHC or NWJC anywhere else.
 
-<a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/3.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/3.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/3.0/">Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License</a>.
+### Careful merging of files
 
-One of the largest and most popular corpora out there. It focuses on written language.
+Some corpora are split into multiple files. If there is an overlap between files, then we effectively count the same word twice. This corrupts the word's frequency rank.
 
-### [Corpus of Spontaneous Japanese (CSJ)](https://clrd.ninjal.ac.jp/csj/index.html)
+In this repo, we merge files in a conservative way to prevent double counting.
 
-<a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/3.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/3.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/3.0/">Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported License</a>.
+### Frequency rank cap
 
-Another popular corpus with a focus on spoken language.
+Include words with a frequency rank up to a threshold. Ignore all words that are rarer than that. This keeps the dictionary small and prevents the Japanese learner from memorizing useless vocabulary :P
 
-### [NINJAL Web Japanese Corpus (NWJC)](https://masayu-a.github.io/NWJC/)
+## Included dictionaries
 
-<a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.
+You can find the dictionaries of the following corpora as GitHub releases.
 
-A relatively unknown corpus which was created by crawling the web. Compared to BCCJW (2017), this is much newer (2022).
+The dictionary file shares the same license as its source data.
 
 ### [Corpus of Historical Japanese (CHJ)](https://clrd.ninjal.ac.jp/chj/index.html)
 
-<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" /></a>
 
 A relatively unknown corpus that covers different eras of Japanese history. _(How cool is that?!)_
 
@@ -46,45 +46,84 @@ There is a dictionary for the premodern part (Nara to Edo) and the modern part (
 
 _(We might even separate single eras, but this reduces the respective sample size and increases the total number of dictionaries.)_
 
-## Where are the dictionaries?
+### [Showa-Heisei Corpus of written Japanese](https://clrd.ninjal.ac.jp/shc/index.html)
 
-The dictionaries for NWJC and CHJ you can find as GitHub releases. They share the same license as their respective source data (see above). This is **different** from the license I use for my own code.
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" /></a>
 
-For BCCWJ and CSJ, their license (see above) doesn't allow us to upload any variants of the original data. My solution is to publish the [raw data in a separate repo](https://github.com/uncomputable/frequency-data). _(This data is already public on the university website.)_ You can use my script to generate a frequency dictionary on your local machine.
+A new corpus that covers the Showa and Heisei era of Japanese history.
 
-## Setup
+There is one dictionary for both eras.
 
-### Using nix
+### [NINJAL Web Japanese Corpus (NWJC)](https://masayu-a.github.io/NWJC/)
 
-Use the provided nix shell to set up the runtime environment.
+<a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a>
 
-```
+A relatively unknown corpus which was created by crawling the web.
+
+## Supported dictionaries
+
+The licence of the following corpora doesn't allow me to upload a derived dictionary.
+
+My solution is to publish the [raw data in a separate repo](https://github.com/uncomputable/frequency-data). _(This data is already public on the university website.)_
+
+Use my script to generate a frequency dictionary on your local machine.
+
+### [Balanced Corpus of Contemporary Written Japanese (BCCWJ)](https://clrd.ninjal.ac.jp/bccwj/index.html)
+
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/3.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/3.0/88x31.png" /></a>
+
+One of the largest and most popular corpora out there. It focuses on written language.
+
+### [Corpus of Spontaneous Japanese (CSJ)](https://clrd.ninjal.ac.jp/csj/index.html)
+
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/3.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/3.0/88x31.png" /></a>
+
+Another popular corpus with a focus on spoken language.
+
+## Set up the runtime environment
+
+### Use nix
+
+Enter the provided nix shell.
+
+```bash
 nix-shell
 ```
 
-### Using pip
+### Use pip
 
 Create a virtual environment and use pip to install the dependencies.
 
-```
+```bash
 python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## Running
+## Run the script
 
-Run the script on the command line with the desired arguments. There is help in case you get stuck.
+Run the script on the command line with the desired arguments.
 
-```
+```bash
 python3 main.py [arguments...]
 ```
 
 For example, generate the frequency dictionary for BCCWJ (short-unit words) like so:
 
-```
+```bash
 python3 main.py bccjw BCCWJ_frequencylist_suw_ver1_1.tsv
 ```
 
-## Importing
+There is help in case you get stuck.
 
-Open the Yomichan settings in your browser and click _Import Dictionary_. Select the zip file and wait for it to be processed. The dictionary should now be working.
+```bash
+python3 main.py --help
+python3 main.py bccjw --help
+```
+
+## Import the dictionary
+
+Open the Yomichan settings in your browser and click "Import Dictionary".
+
+Select the zip file and wait for it to be processed.
+
+The dictionary should now be working.
