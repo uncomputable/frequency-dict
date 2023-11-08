@@ -394,7 +394,7 @@ def nwjc(args: argparse.Namespace):
     Go to 言語資源 → 国語研日本語ウェブコーパス → 『国語研日本語ウェブコーパス』中納言搭載データ語彙表
     """
     rank_list = RankList.from_rank_list(
-        args.file_suw, separator="\t", text_index=2, reading_index=1, skip_lines=1, max_entries=args.max_entries)
+        args.file_suw, separator="\t", text_index=2, reading_index=1, skip_lines=1, max_entries=args.max)
     dictionary = MetaDictionary(
         rank_list, "ウェブ", "src v2022-02 yomi v{}".format(date.today().isoformat()),
         "NINJAL, uncomputable", "https://github.com/uncomputable/frequency-dict",
@@ -425,7 +425,7 @@ def chj_modern(args: argparse.Namespace):
         args.file_suw[1], separator="\t", text_index=1, reading_index=0, frequency_index=16, skip_lines=1, encoding="utf-16")
     occurrences1.unify_distinct(occurrences2)
 
-    rank_list = occurrences1.to_rank_list(max_entries=args.max_entries)
+    rank_list = occurrences1.to_rank_list(max_entries=args.max)
     dictionary = MetaDictionary(
         rank_list, "明治〜大正", "src v2023-03 yomi v{}".format(date.today().isoformat()),
         "NINJAL, uncomputable", "https://github.com/uncomputable/frequency-dict",
@@ -463,7 +463,7 @@ def chj_premodern(args: argparse.Namespace):
             provenance_indices=(8, 9, 12), skip_lines=1, encoding="utf-16")
         occurrences1.unify_conservative_overlap(occurrences2)
 
-    rank_list = occurrences1.to_rank_list(max_entries=args.max_entries)
+    rank_list = occurrences1.to_rank_list(max_entries=args.max)
     suw_luw_version = "SUW+LUW" if args.file_luw else "SUW"
     dictionary = MetaDictionary(
         rank_list, "奈良〜江戸", "src v2023-03 yomi v{} {}".format(date.today().isoformat(), suw_luw_version),
@@ -504,7 +504,7 @@ def bccwj(args: argparse.Namespace):
             args.file_luw, separator="\t", text_index=2, reading_index=1, frequency_index=6, skip_lines=1)
         occurrences1.unify_conservative_overlap(occurrences2)
 
-    rank_list = occurrences1.to_rank_list(max_entries=args.max_entries)
+    rank_list = occurrences1.to_rank_list(max_entries=args.max)
     suw_luw_version = "SUW+LUW" if args.file_luw else "SUW"
     dictionary = MetaDictionary(
         rank_list, "書き言葉", "src v1.1 (2017-12) yomi v{} {}".format(date.today().isoformat(), suw_luw_version),
@@ -531,7 +531,7 @@ def csj(args: argparse.Namespace):
     Go to 言語資源 → 日本語話し言葉コーパス → 『日本語話し言葉コーパス』語彙表(Version 201803)
     """
     rank_list = RankList.from_rank_list(
-        args.file_suw, separator="\t", text_index=2, reading_index=1, skip_lines=1, max_entries=args.max_entries)
+        args.file_suw, separator="\t", text_index=2, reading_index=1, skip_lines=1, max_entries=args.max)
     dictionary = MetaDictionary(
         rank_list, "話し言葉", "src v2018-03 yomi v{}".format(date.today().isoformat()),
         "NINJAL, uncomputable", "https://github.com/uncomputable/frequency-dict",
@@ -555,7 +555,7 @@ def convert_jpdb(args: argparse.Namespace):
 
     https://github.com/MarvNC/jpdb-freq-list
     """
-    dictionary = MetaDictionary.from_zip(args.file, max_entries=args.max_entries)
+    dictionary = MetaDictionary.from_zip(args.file, max_entries=args.max)
     dictionary.to_zip("JPDB.zip")
 
 
