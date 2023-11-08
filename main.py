@@ -131,9 +131,12 @@ class TermOccurrences:
                     reading = jaconv.kata2hira(split_line[reading_index])
 
                 # Term provenance
-                provenance = ""
-                for index in provenance_indices:
-                    provenance += split_line[index] + ","
+                if provenance_indices:
+                    provenance = ""
+                    for index in provenance_indices:
+                        provenance += split_line[index] + ","
+                else:
+                    provenance = None
 
                 term = Term(text, reading, provenance)
                 # Number of term occurrences
