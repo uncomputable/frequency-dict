@@ -38,7 +38,7 @@ The dictionary file shares the same license as its source data.
 
 <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" /></a>
 
-A relatively unknown corpus that covers different eras of Japanese history. _(How cool is that?!)_
+A corpus that covers different eras of Japanese history.
 
 The corpus ranges from the Nara period through the Edo period and Meiji era up to the Taishō era.
 
@@ -50,7 +50,7 @@ _(We might even separate single eras, but this reduces the respective sample siz
 
 <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" /></a>
 
-A new corpus that covers the Showa and Heisei era of Japanese history.
+A corpus that covers the Showa and Heisei era of Japanese history.
 
 There is one dictionary for both eras.
 
@@ -58,13 +58,13 @@ There is one dictionary for both eras.
 
 <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a>
 
-A relatively unknown corpus which was created by crawling the web.
+A corpus which was created by crawling the web.
 
 ## Supported dictionaries
 
 The licence of the following corpora doesn't allow me to upload a derived dictionary.
 
-My solution is to publish the [raw data in a separate repo](https://github.com/uncomputable/frequency-data). _(This data is already public on the university website.)_
+My solution is to publish the [raw data in a separate repo](https://github.com/uncomputable/frequency-data).
 
 Use my script to generate a frequency dictionary on your local machine.
 
