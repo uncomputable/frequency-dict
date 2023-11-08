@@ -266,7 +266,7 @@ class RankList:
                 else:
                     reading = None
 
-                term_meta = TermMetadata(text, reading, line_index + 1)
+                term_meta = TermMetadata(text, reading, line_index - skip_lines + 1)
                 term_meta_bank.append(term_meta)
 
         return RankList(term_meta_bank)
