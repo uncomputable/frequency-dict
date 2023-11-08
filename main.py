@@ -506,6 +506,56 @@ def chj_premodern(args: argparse.Namespace):
     dictionary.to_zip("CHJ_premodern.zip")
 
 
+def shc(args: argparse.Namespace):
+    """
+    Showa-Heisei Corpus of written Japanese
+
+    Files:
+
+    SHC-LEX_SUW_202305_book.csv
+    SHC-LEX_SUW_202305_magazine.csv
+    SHC-LEX_SUW_202305_newspaper.csv
+
+    File source:
+
+    https://repository.ninjal.ac.jp/
+    Go to 言語資源 → 昭和・平成書き言葉コーパス → 『昭和・平成書き言葉コーパス』短単位語彙表（バージョン2023.05）
+    """
+    occurrences1 = TermOccurrences.from_frequency_list(
+        args.file_suw[0], separator="\t", skip_lines=1, encoding="utf-16",
+        text_index=1,        # 語彙素
+        reading_index=0,     # 語彙素読み
+        frequency_index=15,  # freq (頻度)
+    )
+    occurrences2 = TermOccurrences.from_frequency_list(
+        args.file_suw[1], separator="\t", skip_lines=1, encoding="utf-16",
+        text_index=1,        # 語彙素
+        reading_index=0,     # 語彙素読み
+        frequency_index=15,  # freq (頻度)
+    )
+    occurrences1.unify_distinct(occurrences2)
+    occurrences3 = TermOccurrences.from_frequency_list(
+        args.file_suw[2], separator="\t", skip_lines=1, encoding="utf-16",
+        text_index=1,        # 語彙素
+        reading_index=0,     # 語彙素読み
+        frequency_index=15,  # freq (頻度)
+    )
+    occurrences1.unify_distinct(occurrences3)
+
+    rank_list = occurrences1.to_rank_list(max_entries=args.max)
+    dictionary = MetaDictionary(
+        rank_list, "昭和〜平成", "src v2023-05 yomi v{}".format(date.today().isoformat()),
+        "NINJAL, uncomputable", "https://github.com/uncomputable/frequency-dict",
+        """『昭和・平成書き言葉コーパス』は、昭和・平成期の日本語を通時的に研究できるように設計したコーパスです。
+
+        雑誌、ベストセラー書籍、新聞
+
+        https://clrd.ninjal.ac.jp/shc/index.html""",
+        "CC BY-NC-SA 4.0 https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ja"
+    )
+    dictionary.to_zip("SHC.zip")
+
+
 def bccwj(args: argparse.Namespace):
     """
     Balanced Corpus of Contemporary Written Japanese
@@ -628,10 +678,15 @@ if __name__ == "__main__":
     parser_e.add_argument("--max", type=int, default=80000, help="Maximum term frequency included in dictionary")
     parser_e.set_defaults(func=chj_modern)
 
-    parser_f = subparsers.add_parser("jpdb", help="Corpus based on JPDB [convert yomichan dictionary]")
-    parser_f.add_argument("file", type=str, help="Path to Freq.JPDB_2022-05-10T03_27_02.930Z.zip")
+    parser_f = subparsers.add_parser("shc", help="Showa-Heisei Corpus of written Japanese")
+    parser_f.add_argument("file_suw", nargs=3, type=str, help="Path to SHC-LEX_SUW_202305_{book,magazine,newspaper}.csv")
     parser_f.add_argument("--max", type=int, default=80000, help="Maximum term frequency included in dictionary")
-    parser_f.set_defaults(func=convert_jpdb)
+    parser_f.set_defaults(func=shc)
+
+    parser_z = subparsers.add_parser("jpdb", help="Corpus based on JPDB [convert yomichan dictionary]")
+    parser_z.add_argument("file", type=str, help="Path to Freq.JPDB_2022-05-10T03_27_02.930Z.zip")
+    parser_z.add_argument("--max", type=int, default=80000, help="Maximum term frequency included in dictionary")
+    parser_z.set_defaults(func=convert_jpdb)
 
     args = parser.parse_args()
     args.func(args)
