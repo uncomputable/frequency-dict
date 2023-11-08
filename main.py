@@ -397,7 +397,10 @@ def nwjc(args: argparse.Namespace):
     Go to 言語資源 → 国語研日本語ウェブコーパス → 『国語研日本語ウェブコーパス』中納言搭載データ語彙表
     """
     rank_list = RankList.from_rank_list(
-        args.file_suw, separator="\t", text_index=2, reading_index=1, skip_lines=1, max_entries=args.max)
+        args.file_suw, separator="\t", skip_lines=1, max_entries=args.max,
+        text_index=2,     # lemma (語彙素)
+        reading_index=1,  # lForm (語彙素読み)
+    )
     dictionary = MetaDictionary(
         rank_list, "ウェブ", "src v2022-02 yomi v{}".format(date.today().isoformat()),
         "NINJAL, uncomputable", "https://github.com/uncomputable/frequency-dict",
@@ -423,9 +426,19 @@ def chj_modern(args: argparse.Namespace):
     Go to 言語資源 → 日本語歴史コーパス → 『日本語歴史コーパス』統合語彙表（バージョン2023.03）
     """
     occurrences1 = TermOccurrences.from_frequency_list(
-        args.file_suw[0], separator="\t", text_index=1, reading_index=0, frequency_index=16, skip_lines=1, encoding="utf-16")
+        args.file_suw[0], separator="\t", skip_lines=1, encoding="utf-16",
+        text_index=1,                    # 語彙素
+        reading_index=0,                 # 語彙素読み
+        frequency_index=16,              # freq (頻度)
+        provenance_indices=(9, 10, 13),  # 作品名, 部, 本文種別
+    )
     occurrences2 = TermOccurrences.from_frequency_list(
-        args.file_suw[1], separator="\t", text_index=1, reading_index=0, frequency_index=16, skip_lines=1, encoding="utf-16")
+        args.file_suw[1], separator="\t", skip_lines=1, encoding="utf-16",
+        text_index=1,                    # 語彙素
+        reading_index=0,                 # 語彙素読み
+        frequency_index=16,              # freq (頻度)
+        provenance_indices=(9, 10, 13),  # 作品名, 部, 本文種別
+    )
     occurrences1.unify_distinct(occurrences2)
 
     rank_list = occurrences1.to_rank_list(max_entries=args.max)
@@ -457,13 +470,21 @@ def chj_premodern(args: argparse.Namespace):
     Go to 言語資源 → 日本語歴史コーパス → 『日本語歴史コーパス』統合語彙表（バージョン2023.03）
     """
     occurrences1 = TermOccurrences.from_frequency_list(
-        args.file_suw, separator="\t", text_index=1, reading_index=0, frequency_index=16,
-        provenance_indices=(9, 10, 13), skip_lines=1, encoding="utf-16")
+        args.file_suw, separator="\t", skip_lines=1, encoding="utf-16",
+        text_index=1,                    # 語彙素
+        reading_index=0,                 # 語彙素読み
+        frequency_index=16,              # freq (頻度)
+        provenance_indices=(9, 10, 13),  # 作品名, 部, 本文種別
+    )
 
     if args.file_luw:
         occurrences2 = TermOccurrences.from_frequency_list(
-            args.file_luw, separator="\t", text_index=1, reading_index=0, frequency_index=13,
-            provenance_indices=(8, 9, 12), skip_lines=1, encoding="utf-16")
+            args.file_luw, separator="\t", skip_lines=1, encoding="utf-16",
+            text_index=1,                   # 語彙素
+            reading_index=0,                # 語彙素読み
+            frequency_index=13,             # freq (頻度)
+            provenance_indices=(8, 9, 12),  # 作品名, 部, 本文種別
+        )
         occurrences1.unify_conservative_overlap(occurrences2)
 
     rank_list = occurrences1.to_rank_list(max_entries=args.max)
@@ -500,11 +521,19 @@ def bccwj(args: argparse.Namespace):
     Go to 言語資源 → 現代日本語書き言葉均衡コーパス → 『現代日本語書き言葉均衡コーパス』短単位語彙表(Version 1.1)
     """
     occurrences1 = TermOccurrences.from_frequency_list(
-        args.file_suw, separator="\t", text_index=1, reading_index=0, frequency_index=6, skip_lines=0)
+        args.file_suw, separator="\t",
+        text_index=2,       # lemma (語彙素)
+        reading_index=1,    # lForm (語彙素読み)
+        frequency_index=6,  # frequency (BCCWJ全体の頻度)
+    )
 
     if args.file_luw:
         occurrences2 = TermOccurrences.from_frequency_list(
-            args.file_luw, separator="\t", text_index=2, reading_index=1, frequency_index=6, skip_lines=1)
+            args.file_luw, separator="\t", skip_lines=1,
+            text_index=2,       # lemma (語彙素)
+            reading_index=1,    # lForm (語彙素読み)
+            frequency_index=6,  # frequency (BCCWJ全体の頻度)
+        )
         occurrences1.unify_conservative_overlap(occurrences2)
 
     rank_list = occurrences1.to_rank_list(max_entries=args.max)
@@ -534,7 +563,10 @@ def csj(args: argparse.Namespace):
     Go to 言語資源 → 日本語話し言葉コーパス → 『日本語話し言葉コーパス』語彙表(Version 201803)
     """
     rank_list = RankList.from_rank_list(
-        args.file_suw, separator="\t", text_index=2, reading_index=1, skip_lines=1, max_entries=args.max)
+        args.file_suw, separator="\t", skip_lines=1, max_entries=args.max,
+        text_index=2,     # lemma (語彙素)
+        reading_index=1,  # lForm (語彙素読み)
+    )
     dictionary = MetaDictionary(
         rank_list, "話し言葉", "src v2018-03 yomi v{}".format(date.today().isoformat()),
         "NINJAL, uncomputable", "https://github.com/uncomputable/frequency-dict",
