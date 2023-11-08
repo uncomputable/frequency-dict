@@ -94,7 +94,7 @@ class TermOccurrences:
     @classmethod
     def from_frequency_list(cls, file_path: str, separator: str, text_index: int, reading_index: int,
                             frequency_index: int, provenance_indices: Optional[Tuple[int, ...]] = None,
-                            skip_lines: Optional[int] = None, encoding: str = "utf-8") -> "TermOccurrences":
+                            skip_lines: int = 0, encoding: str = "utf-8") -> "TermOccurrences":
         """
         Count the number of term occurrences in a frequency list.
 
@@ -227,7 +227,7 @@ class RankList:
 
     @classmethod
     def from_rank_list(cls, file_path: str, separator: str, text_index: int, reading_index: int,
-                       skip_lines: Optional[int] = None, max_entries: Optional[int] = None, encoding: str = "utf-8") -> "RankList":
+                       skip_lines: int = 0, max_entries: Optional[int] = None, encoding: str = "utf-8") -> "RankList":
         """
         The input file consists of lines that are ordered by rank (n-th most common term) in increasing order.
 
