@@ -14,19 +14,21 @@ Frequency dictionaries can help language learners distinguish common words from 
 
 The data is kept up to date with NINJAL.
 
-### Exclusive dictionaries
+### Unique dictionaries
 
-I haven't seen dictionaries for CHJ, SHC or NWJC anywhere else.
+Learn how words changed in frequency throughout history (CHJ, SHW).
+
+Learn about frequent words on the Japanese web (NWJC).
 
 ### Careful merging of files
 
-Some corpora are split into multiple files. If there is an overlap between files, then we effectively count the same word twice. This corrupts the word's frequency rank.
+When compiling a frequency dictionary, one has to be careful to not count the same word occurrence twice. This would corrupt the resulting word frequency.
 
-In this repo, we merge files in a conservative way to prevent double counting.
+The dictionaries in this repo are vetted against double-counting.
 
 ### Frequency rank cap
 
-Include words with a frequency rank up to a threshold. Ignore all words that are rarer than that. This keeps the dictionary small and prevents the Japanese learner from memorizing useless vocabulary :P
+The default dictionaries include the 50k most frequent words only. This keeps the files small and the learner focus on what is important: frequent words. Language fluency requires around 10k to 20k words of vocabulary.
 
 ## Included dictionaries
 
@@ -42,9 +44,12 @@ A corpus that covers different eras of Japanese history.
 
 The corpus ranges from the Nara period through the Edo period and Meiji era up to the Taishō era.
 
-There is a dictionary for the premodern part (Nara to Edo) and the modern part (Meji to Taishō), which prevents mixing sources from very different times.
+To track words across eras, two dictionaries are generated:
 
-_(We might even separate single eras, but this reduces the respective sample size and increases the total number of dictionaries.)_
+1. A dictionary for the premodern part (Nara to Edo)
+2. A dictionary for the modern part (Meiji to Taishō)
+
+_The corpus is likely too small to generate dictionaries for each era._
 
 ### [Showa-Heisei Corpus of written Japanese](https://clrd.ninjal.ac.jp/shc/index.html)
 
